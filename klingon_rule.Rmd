@@ -1,0 +1,10 @@
+---
+title: "Klingon's Rule"
+author: "Zack Wixom"
+date: 10/19/20
+output: html_document
+---
+
+
+
+
