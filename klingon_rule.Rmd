@@ -1,10 +1,199 @@
 ---
-title: "Klingon's Rule"
+title: "Kling on to the Government"
 author: "Zack Wixom"
 date: 10/19/20
 output: html_document
 ---
 
+### The Current Rule
 
+Over the past 60 years, we have seen ebbs and flows to our unemployment rate. Within the last few years the unemployment rate as skyrocketed and as a major factor for a our growing economy, we need to understand what may be causing this blight and how to stop it. Romulans have predominantly controlled the government for the last 60 years, has their political campaigns and agendas fueled the socio-economic unrest?
 
+```{r packages, message=FALSE, include=FALSE}
+# Load packages
+library(tidyverse)
+library(tidymodels)
+library(here)
 
+```
+
+### Initial Findings
+
+Using employment data sources provided by the ambassador from Earth, __Jeff Parker__, I have uncovered interesting insights into each political parties control and the employment repercussions. First, I viewed the overall unemployment rate over the last 60 years of data and which party was predominantly in control; _in control is defined as having 2 branches of government with majority in the party_. 
+
+The first graph shows that the Klingon party has had very little voice in the government while Romulans have controlled this world. Romulan control have brought a trend of increased unemployment rate over the years, while Klingon's have attempted lower it while in control only to lead to a new spike during Romulan control. 
+
+```{r import data, include=FALSE}
+# Employment data
+employment <- read_csv(here("data", "Employment.csv"))
+
+# Monthly Sample data
+monthly_sample <- read_csv(here("data", "MonthlySample.csv"))
+
+# Party Control data
+party_control <- read_csv(here("data", "PartyControl.csv"))
+
+# Unemployment data
+unemployment <- read_csv(here("data", "Unemployment.csv"))
+
+```
+
+```{r explore party control, include=TRUE, warning=FALSE}
+# Calculate Overall Average
+overall_average <- mean(party_control$`Unemp/Emp Ratio`)
+
+# When two seats have been filled by Klingon 
+K_control <- party_control %>% 
+  filter(President == "K" & Senate == "K" | President == "K" & House == "K" | House == "K" & Senate == "K")
+
+# Klingon Average Unemployment Rate
+K_average <- mean(K_control$`Unemp/Emp Ratio`)
+
+# When two seats have been filled by Romulan 
+R_control <- party_control %>% 
+  filter(President == "R" & Senate == "R" | President == "R" & House == "R" | House == "R" & Senate == "R")
+
+# Romulan Average Unemployment Rate
+R_average <- mean(R_control$`Unemp/Emp Ratio`)
+
+ggplot() +
+  # Plot K and R data
+  geom_col(data = K_control, aes(x = `Star Year`, y=`Unemp/Emp Ratio`), fill = "#8b0000", alpha = 0.2) +
+  geom_col(data = R_control, aes(x = `Star Year`, y=`Unemp/Emp Ratio`), fill = "#0000CD", alpha = 0.2) +
+  geom_smooth(data = K_control, aes(x = `Star Year`, y=`Unemp/Emp Ratio`), color = "#8b0000", method = "loess",se = FALSE) +
+  geom_smooth(data = R_control, aes(x = `Star Year`, y=`Unemp/Emp Ratio`), color = "#0000CD", method = "loess", se = FALSE) +
+  # Modify Theme
+  theme_minimal() +
+  theme(
+    plot.background = element_blank(),
+    panel.background = element_blank(),
+    panel.grid = element_blank(),
+    panel.border = element_blank(),
+    text = element_text(family = "Avenir", size = 12),
+    axis.ticks = element_blank(),
+    legend.position = "none"
+  ) +
+  # Average Unemployment Rate
+  geom_hline(yintercept = overall_average) +
+  # Add Text to Graph
+  geom_text(aes(2294, overall_average,label = paste("Average:", 100 * round(overall_average,4), "%"), vjust = -2),
+            family = "Avenir",
+            size = 2) +
+  geom_text(aes(2330, .1, label = "Klingon", hjust = -.60),
+            family = "Avenir",
+            size = 4,
+            color = "#8b0000") +
+  geom_text(aes(2335, .1, label = "vs", hjust = -3),
+            family = "Avenir",
+            size = 4) +
+  geom_text(aes(2340, .1, label = "Romulan", hjust = -.23),
+            family = "Avenir",
+            size = 4,
+            color = "#0000CD") +
+  # labels
+  labs(
+    title = "Unemployment Has Consistently Risen Under Romulan Control",
+    y = "Unemployment Rate"
+  ) +
+  # Fix Scales
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(.02, .04, .06,.08, .1)) +
+  scale_x_continuous(breaks = c(2300,2310, 2320, 2330, 2340, 2350, 2359))
+
+```
+
+### Deeper Dive
+
+There are many ups and downs of unemployment during each parties rule, however, I dove deeper into the most recent years to figure out what how each party is influencing the deltas of employment and unemployment. Klingon control has shown positive delta's in employment rate --- __higher number of citizens employment__. Complementing their negative delta's in unemployment --- __lower number of citizens unemployment__.
+
+```{r explore sample}
+# When two seats have been filled by Klingon 
+K_sample <- monthly_sample %>% 
+  filter(President == "K" & Senate == "K" | President == "K" & House == "K" | House == "K" & Senate == "K")
+
+# When two seats have been filled by Romulan 
+R_sample <- monthly_sample %>% 
+  filter(President == "R" & Senate == "R" | President == "R" & House == "R" | House == "R" & Senate == "R")
+
+# Plot Employment Delta
+ggplot() +
+  # Plot K and R data
+  geom_col(data = K_sample, aes(x = `Star Year`, y= `Employment Delta`, alpha = `Star Month`), fill = "#8b0000") +
+  geom_col(data = R_sample, aes(x = `Star Year`, y=`Employment Delta`, alpha = `Star Month`), fill = "#0000CD") +
+  # Modify Theme
+  theme_minimal() +
+  theme(
+    plot.background = element_blank(),
+    panel.background = element_blank(),
+    panel.grid = element_blank(),
+    panel.border = element_blank(),
+    text = element_text(family = "Avenir", size = 12),
+    axis.ticks = element_blank(),
+    legend.position = "none"
+  ) +
+  # Add Additional Elements
+  geom_hline(yintercept = 0) +
+  geom_text(aes(2352, -4000, label = "Klingon"),
+            family = "Avenir",
+            size = 4,
+            color = "#8b0000") +
+  geom_text(aes(2352, -4000, label = "vs", hjust = -2),
+            family = "Avenir",
+            size = 4) +
+  geom_text(aes(2352, -4000, label = "Romulan", hjust = -.72),
+            family = "Avenir",
+            size = 4,
+            color = "#0000CD") +
+  # Fix Scales
+  scale_y_continuous(labels = scales::label_number(suffix = "K", scale = 1/1e2), breaks = c(-6000, -4000, -2000, 2000)) +
+  # labels
+  labs(
+    title = "Klingons Increase Employment",
+    subtitle = "Romulans have lead to low employment"
+  )
+  
+
+```
+
+```{r}
+# Plot Unemployment Delta
+ggplot() +
+  geom_col(data = K_sample, aes(x = `Star Year`, y= `Unemployment Delta`, alpha = `Star Month`), fill = "#8b0000" ) +
+  geom_col(data = R_sample, aes(x = `Star Year`, y=`Unemployment Delta`, alpha = `Star Month`), fill = "#0000CD") +
+  # xlim(2310, 2360) +
+    # Modify Theme
+  theme_minimal() +
+  theme(
+    plot.background = element_blank(),
+    panel.background = element_blank(),
+    panel.grid = element_blank(),
+    panel.border = element_blank(),
+    text = element_text(family = "Avenir", size = 12),
+    axis.ticks = element_blank(),
+    legend.position = "none"
+  ) +
+  # Add Additional Elements
+  geom_hline(yintercept = 0) +
+  geom_text(aes(2352, 2000, label = "Klingon"),
+            family = "Avenir",
+            size = 4,
+            color = "#8b0000") +
+  geom_text(aes(2352, 2000, label = "vs", hjust = -2),
+            family = "Avenir",
+            size = 4) +
+  geom_text(aes(2352, 2000, label = "Romulan", hjust = -.72),
+            family = "Avenir",
+            size = 4,
+            color = "#0000CD") +
+  # Fix Scales
+  scale_y_continuous(labels = scales::label_number(suffix = "K", scale = 1/1e2), breaks = c(-2000, 2000, 4000)) +
+  # labels
+  labs(
+    title = "Klingons Decrease Uemployment",
+    subtitle = "Romulans have lead to more unemployment"
+  )
+
+```
+
+### Conclusion
+
+Despite their under representation in the government, Klingon's have consistently sought for a better community and world while in control. Voters should understand the socio-economic impact of each party and act accordingly if we want our world to be a successful in the galaxy. We must __Kling On To The Government!__
