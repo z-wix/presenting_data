@@ -1,0 +1,68 @@
+---
+title: "Rmarkdown - Presenting Data"
+author: "Zack Wixom"
+date: !r today()
+output: html_notebook
+---
+
+
+```{r message=FALSE, echo=FALSE}
+library(tidyverse)
+
+# Hides all code chunks when knitted
+knitr::opts_chunk(echo = FALSE)
+
+
+```
+
+
+```{r eval=TRUE}
+
+ggplot(mtcars)+
+  geom_histogram(
+    aes(mpg)
+  )
+
+knitr::kable(mtcars)
+
+
+```
+
+Run in line code by doing this: `nrow(mtcars)`
+
+
+
+```{r}
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

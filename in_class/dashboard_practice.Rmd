@@ -1,0 +1,138 @@
+---
+title: "practice dashboard"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: scroll
+runtime: shiny
+---
+
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(flexdashboard)
+library(plotly)
+library(shiny)
+library(here)
+
+
+```
+
+input
+----------------
+```{r}
+
+# Inputs
+
+sliderInput("rating_id",
+     label = "Rating",
+     min = 0,
+     max = 7,
+     value = 0)
+
+
+sliderInput("another_id",
+     label = "Another Rating",
+     min = 0,
+     max = 5,
+     value = 0)
+
+sliderInput("and_id",
+     label = "And Another",
+     min = 0,
+     max = 3,
+     value = 0)
+
+
+# Possible reactive elements for the inputs
+rating <- reactive({
+  input$rating_id
+})
+
+another_rating <- reactive({
+  input$another_id
+})
+
+and_rating <- reactive({
+  input$and_id
+})
+
+# Reactive Element
+
+df <- as.data.frame(matrix(rep(0), nrow = 3))
+
+df$levels = c("Rating", "Another Rating", "And Another")
+                        
+r_df <- reactive({
+  df$p1 <- 0
+  df$p1[df$levels == "Rating"] <- rating()
+  df$p1[df$levels == "Another Rating"] <- another_rating()
+  df$p1[df$levels == "And Another"] <- and_rating()
+  
+  df$p2 <- 0
+  df$p2[df$levels == "Rating"] <- rating()
+  df$p2[df$levels == "Another Rating"] <- another_rating()
+  df$p2[df$levels == "And Another"] <- and_rating()
+  
+  df$p3 <- 0
+  df$p3[df$levels == "Rating"] <- rating()
+  df$p3[df$levels == "Another Rating"] <- another_rating()
+  df$p3[df$levels == "And Another"] <- and_rating()
+})                      
+
+
+
+renderPlotly({
+  df = r_df()
+  
+  colnames(df) <- c('Value', 'Organization', "P1", "P2", "P3")
+
+
+  ggplot(df, aes(x = P1)) +
+    geom_bar()
+})
+
+
+
+
+
+
+
+```
+
+
+```{r matrix multiplication, eval=FALSE, include=FALSE}
+library(shiny)
+
+beta <- data.frame(
+  value = c(0,0,0),
+  levels = c("Environment", "Human rights", "Refugee relief")
+)
+
+ui <- fluidPage(
+  fluidRow(
+    column(6,
+      selectInput("ai_issue", 
+                  label = "Select Issue Area:",
+                  choices = beta$levels,
+                  multiple = TRUE)
+    ),
+    column(6,
+      tableOutput("data")
+    )
+  )
+)
+
+server = function(input, output) {
+
+  df <- reactive({
+    beta$value[beta$levels %in% input$ai_issue] <- 1
+    beta
+  })
+
+  output$data <- renderTable({
+    df()
+  })
+}
+```

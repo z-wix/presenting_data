@@ -1,0 +1,184 @@
+---
+title: "ggplot2 - inclass work"
+author: "Zack Wixom"
+output: html_notebook
+---
+
+## ggplot2
+written by Hadley Wickam. Wrote it as a grad project and got the name from the term _grammar of graphics_.
+
+## Key Takeaways of ggplot
+
+- Works best with "tidy data"
+- You specify the mapping (encoding) of the data to different aesthetics (channels) and plot the geometric objects/geoms (marks = _ink on screen_)
+
+
+```{r load packages}
+
+library(tidyverse)
+library(ggplot2) # just the ggplot packages
+
+```
+
+
+
+ggplot
+useful stuff:
+- __alpha__ = density or transparency
+
+
+```{r data}
+
+# read in Data
+diamonds <- diamonds
+
+# Clean Data
+diamonds
+
+```
+
+## ggplot Function
+
+``` {r ggplot function}
+
+# Analysis & Visualization
+
+# ggplot function
+ggplot(data = diamonds, mapping = aes()) +
+  geom_point(mapping = aes(x = carat, y = price)) +
+  geom_vline(mapping = aes(xintercept = 3)) +
+  geom_hline(mapping = aes(yintercept = 5000))
+  
+ggplot(diamonds) +
+  geom_point(aes(carat, price, size = depth *.5), color = "#32a87b", alpha = .2) +
+  geom_vline(aes(xintercept = 3), color = "#a87d32") +
+  geom_hline(aes(yintercept = 5000), color = "#a87d32") +
+  scale_size_continuous(range = c(.5, 1)) +
+  scale_y_continuous(labels = dollar_format(suffix = "K", scale = .001), breaks = c(5000, 10000, 15000)) +
+  theme_wsj() +
+  theme(
+    legend.position = "none",
+    axis.title = element_blank(),
+    text = element_text("Avenir", color = "grey60"),
+    title = element_text("Avenir", color = "grey60")
+  ) +
+  labs(
+    title = "Price of Diamonds",
+    subtitle = "Per Carat",
+    caption = "Source: ggplot"
+  )
+  
+
+```
+
+Also can add a coordinate plane:
+- coord_flip
+- coord_map
+- coord_polar
+
+Also a theme
+- classic is default
+
+Also a Facet
+- facet_wrap = only one facet variable
+- facet_grid = can do more than one variable to facet by
+```{r}
+
+diamonds %>% 
+  mutate(
+    trans = ifelse(color == "D", .8, 0.2)
+  ) %>% 
+  ggplot() +
+  geom_point(aes(x = carat, y = price, color = color, size = depth, alpha = trans)) +
+  coord_polar() +
+  theme_minimal() +
+  facet_grid(~color)
+  
+```
+Now for the Homework I need to recreate one of my vizzes using ggplot
+
+```{r}
+# load packages for excel data loading and here for data path
+library(readxl)
+library(here)
+
+sales <- read_xlsx(here("data_r", "sales_rep_data.xlsx"))
+
+sales <- sales %>%
+  rename(sales_rep = `Sales Rep`)
+
+average <- data.frame(list("Average Total Sales", 37480.26, 37480.26))
+
+
+sales_ave <- sales %>% 
+  group_by(sales_rep) %>% 
+  summarize(
+    ave_sales = mean(Sales)
+  ) %>%
+  mutate(
+    total_ave_sales = ifelse(sales_rep != "Ellie-Rose Wharton",mean(sort(ave_sales)[-c(1, length(ave_sales))]), ave_sales)
+  )
+
+names(average) <- names(sales_ave)
+
+sales_simp <- sales_ave %>% 
+  rbind(average) %>%
+  arrange(desc(total_ave_sales)) %>% 
+  head(3)
+
+sales_simp[3,1] <- "All Other Reps"
+
+library(scales)
+
+my_colors <- c("#306165", "#A78D4E", "#A24C52")
+
+my_white <- "#F8F8F8"
+
+h <- max(sales_simp[2,3])
+
+sales_simp %>%
+  group_by(total_ave_sales) %>% 
+  ggplot() +
+  geom_col(aes(x = reorder(sales_rep, -total_ave_sales), y = total_ave_sales, fill = sales_rep), show.legend = FALSE) +
+  scale_fill_manual("sales_rep", values = my_colors) +
+  scale_y_continuous(label = label_number(prefix = "$", suffix = "K", scale = 1/1e3), breaks = c(20000, 40000, 60000,80000)) +
+  labs(
+    title = "Wharton Outperforms All Other Reps",
+    subtitle = "Average sales over last two years",
+    y = element_blank(),
+    x = element_blank()
+  ) +
+  theme_few() +
+  theme(
+    plot.background = element_rect(fill = "#F8F8F8"),
+    panel.background = element_blank(),
+    panel.border = element_blank(),
+    text = element_text(family = "Avenir", size = 16),
+    axis.ticks = element_blank(),
+    panel.spacing.y = unit(c(0, 0, 0, 0), "null")
+  ) +
+  geom_hline(aes(yintercept = h), color = "#A78D4E")
+  
+
+
+
+```
+
+
+gapminder exercise
+
+```{r}
+
+library(gapminder)
+gapminder <- gapminder
+
+
+gapminder %>% 
+  filter(year == 1997) %>% 
+  ggplot(aes(gdpPercap, lifeExp, size = pop)) +
+  geom_point(aes(color = continent)) +
+  scale_x_log10()
+
+
+```
+

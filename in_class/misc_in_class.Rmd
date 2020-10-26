@@ -1,0 +1,18 @@
+---
+title: "R basics Class"
+author: "Zack Wixom"
+output: html_notebook
+---
+
+```{r packages}
+library(tidyverse)
+
+
+```
+
+```{r data}
+
+diamonds <- 
+
+```
+

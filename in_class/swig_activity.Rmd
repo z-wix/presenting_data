@@ -1,0 +1,118 @@
+---
+title: "swig_drinks"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+
+## Activity
+
+Which store locations sell the most drinks, revivers, refreshers and cookies?
+
+```{r load data, cache=TRUE}
+swig <- read.csv(here::here("data_r", "ticketdata_swig_2months.csv"))
+
+```
+
+look at storeid, ticketid, userid, date, qty, total, productgroupid (1009, 1010, 1011, 1012)
+
+```{r}
+# select relevant variables
+swig_select <- swig %>% 
+  select(storeid, ticketid, userid, date, qty, total, productgroupid)
+```
+```{r}
+
+# swig_select %>% 
+#   group_by(storeid) %>% 
+#   summarize(
+#     num_tickets = n_distinct(ticketid)
+#   ) %>% 
+#   ungroup() %>% 
+#   group_by(ticketid) %>% 
+#   summarize(
+#     
+#   )
+
+swig_1009 <- swig_select %>% 
+  mutate(
+    store_date = str_c(storeid, date, sep = "_")
+  ) %>% 
+  group_by(storeid) %>% 
+  filter(productgroupid == 1009) %>% 
+  summarize(
+    trans_1009 = n_distinct(ticketid)
+  )
+  
+```
+
+```{r}
+swig_1010 <- swig_select %>% 
+  mutate(
+    store_date = str_c(storeid, date, sep = "_")
+  ) %>% 
+  group_by(storeid) %>% 
+  filter(productgroupid == 1010) %>% 
+  summarize(
+    trans_1010 = n_distinct(ticketid)
+  )
+
+```
+
+```{r}
+swig_1011 <- swig_select %>% 
+  mutate(
+    store_date = str_c(storeid, date, sep = "_")
+  ) %>% 
+  group_by(storeid) %>% 
+  filter(productgroupid == 1011) %>% 
+  summarize(
+    trans_1011 = n_distinct(ticketid)
+  )
+```
+
+```{r}
+swig_1012 <- swig_select %>% 
+  mutate(
+    store_date = str_c(storeid, date, sep = "_")
+  ) %>% 
+  group_by(storeid) %>% 
+  filter(productgroupid == 1012) %>% 
+  summarize(
+    trans_1012 = n_distinct(ticketid)
+  )
+```
+
+
+```{r}
+swig_2 <- inner_join(swig_1009, swig_1010)
+
+swig_3 <- inner_join(swig_2, swig_1011)
+
+swig_4 <- inner_join(swig_3, swig_1012)
+
+```
+
+```{r}
+
+swig_4$storeid <- as.factor(swig_4$storeid)
+
+swig_long <- swig_4 %>% 
+  pivot_longer(cols = c(trans_1009, trans_1010, trans_1011, trans_1012))
+
+swig_long %>% 
+  ggplot(aes(x = storeid, y = value, fill = name))+
+  geom_col(position = "dodge")
+
+swig_4 %>% 
+  ggplot(aes(x = storeid)) +
+  geom_col(aes( y = trans_1009, fill = "a")) +
+  geom_col(aes( y = trans_1010, fill = "b")) +
+  geom_col(aes( y = trans_1011, fill = "c")) +
+  geom_col(aes( y = trans_1012, fill = "d"))
+```
+
