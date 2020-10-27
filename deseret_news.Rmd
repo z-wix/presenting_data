@@ -2,9 +2,9 @@
 title: "Deseret News"
 output: 
   flexdashboard::flex_dashboard:
-    orientation: columns
-    vertical_layout: fill
-    theme: spacelab
+    orientation: rows
+    vertical_layout: scroll
+    theme: readable
 runtime: shiny
 ---
 
@@ -42,7 +42,6 @@ remote <- remote %>%
 
 ```
 
-
 ```{r}
 
 remote %>% 
@@ -50,7 +49,7 @@ remote %>%
   geom_col(aes(x = factor(time_period, levels = c("Before", "During", "After*"), ordered = TRUE), y = percentage, fill = factor(bucket, levels = c("<29%", "30-59%", ">60%"), ordered = TRUE)), width = 0.6) +
   labs(
     title = "Executives are Embracing Work-From-Home During COVID-19",
-    subtitle = "Expected employees that will work remotely at least once a day",
+    subtitle = "Showing the % of executives that expect remote employees",
     x = element_blank(),
     y = element_blank(),
     fill = "% of Remote Employees",
