@@ -1,14 +1,14 @@
 ---
 title: "Deseret News"
-output: 
+output:
   flexdashboard::flex_dashboard:
     orientation: rows
     vertical_layout: scroll
-    theme: readable
+  theme: readable
 ---
 
 ```{r setup, include=FALSE}
-# knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse)
 library(flexdashboard)
 library(plotly)
