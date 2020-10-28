@@ -60,11 +60,11 @@ remote %>%
     panel.background = element_blank(),
     axis.text.y = element_blank(),
     axis.ticks = element_blank(), 
-    axis.text.x = element_text(size = 12, vjust = 5),
+    axis.text.x = element_text(size = 12, vjust = 0),
     plot.caption = element_text(size = 6)
   ) +
   scale_fill_manual(values = c("grey80", "lightblue", "royalblue")) +
-  scale_y_continuous(breaks = c(.50, 1), labels = scales::percent_format()) +
+  scale_y_continuous(breaks = c(.50, 1), labels = scales::percent_format(), expand = c(0,0)) + # expand moves the graph closer to labels
   geom_text(x = 1.01, y = .35, label = "39%", color = "lightblue", size = 5) +
   geom_text(x = 2.01, y = .73, label = "77%", color = "lightblue", size = 5) +
   geom_text(x = 3.01, y = .51, label = "55%", color = "lightblue", size = 5)
