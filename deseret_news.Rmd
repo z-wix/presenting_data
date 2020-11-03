@@ -4,13 +4,14 @@ output:
   flexdashboard::flex_dashboard:
     orientation: rows
     vertical_layout: scroll
-  theme: readable
+    theme: readable
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse)
 library(flexdashboard)
+library(shiny)
 library(plotly)
 library(shiny)
 library(readxl)
@@ -33,7 +34,7 @@ remote <- remote %>%
 
 remote <- remote %>% 
   pivot_longer(
-    cols = c(`<29%`, `30-59%`, `>60%`),
+    cols = c(`Few`, `Many`, `Most`),
     names_to = "bucket",
     values_to = "percentage"
   )
@@ -41,42 +42,60 @@ remote <- remote %>%
 
 ```
 
+Sidebar {.sidebar}
+------------------------------------------------------
+__The Question:__ 
+
+What percent of your office employees do you anticipate will work remotely at least one day a week?
+
+__How to Read:__
+
+Few : 0-29% of employees
+
+Many : 30-59%
+
+Most : 60-100%
+
+Column 2
+------------------------------------------------------
 ```{r}
 
 remote %>% 
   ggplot() +
-  geom_col(aes(x = factor(time_period, levels = c("Before", "During", "After*"), ordered = TRUE), y = percentage, fill = factor(bucket, levels = c("<29%", "30-59%", ">60%"), ordered = TRUE)), width = 0.6) +
+  geom_col(aes(x = factor(time_period, levels = c("Before", "During", "After*"), ordered = TRUE), y = percentage, fill = factor(bucket, levels = c("Few", "Many", "Most"), ordered = TRUE)), width = 0.6) +
   labs(
-    title = "Executives are Embracing Work-From-Home During COVID-19",
-    subtitle = "Showing the % of executives that expect remote employees",
+    title = "Executives are embracing Work-from-Home in COVID",
+    subtitle = "They expect the percent of remote workforce not to drop back to original levels",
     x = element_blank(),
     y = element_blank(),
-    fill = "% of Remote Employees",
+    fill = "Remote Employees",
     caption = "Source: PwC U.S Remote Work Survey, June 25, 2020. Base: 120 U.S. executives. * = projected"
   ) +
   theme(
-    text = element_text(family = "Avenir"),
+    text = element_text(family = "Avenir", color = "grey30"),
     plot.background = element_blank(),
     panel.background = element_blank(),
     axis.text.y = element_blank(),
     axis.ticks = element_blank(), 
-    axis.text.x = element_text(size = 12, vjust = 0),
+    axis.text.x = element_text(size = 12, vjust = 0, color = "grey60"),
     # axis.title.x = element_text(hjust = 1), # to left justify the title
     # axis.title.y = element_text(hjust = 1), # to top justify the horizontal title
-    plot.caption = element_text(size = 6),
+    plot.caption = element_text(size = 6, color = "grey60"),
     plot.title.position = "plot",
-    plot.title = element_text(margin = margin(0,0,0,0)),
-    plot.subtitle = element_text(margin = margin(0,0,20,0))
+    plot.title = element_text(margin = margin(0,0,10,0), color = "grey30"),
+    plot.subtitle = element_text(margin = margin(0,0,10,0), color = "grey60"),
+    legend.text = element_text(color = "grey60"),
+    legend.title = element_text(color = "grey60")
   ) +
-  scale_fill_manual(values = c("grey80", "lightblue", "royalblue")) +
+  scale_fill_manual(values = c("grey80", "grey60", "#FFCF3B")) +
   scale_y_continuous(breaks = c(.50, 1), labels = scales::percent_format(), expand = c(0,0)) + # expand moves the graph closer to labels
   # geom_text(x = 1.01, y = .35, label = "39%", color = "lightblue", size = 5) + # annotate is better
   # geom_text(x = 2.01, y = .73, label = "77%", color = "lightblue", size = 5) +
   # geom_text(x = 3.01, y = .51, label = "55%", color = "lightblue", size = 5) +
-  annotate("text", x = 1.01, y = .35, label = "39%", color = "lightblue", size = 5, family = "Avenir") +
-  annotate("text", x = 2.01, y = .73, label = "77%", color = "lightblue", size = 5, family = "Avenir") +
-  annotate("text", x = 3.01, y = .51, label = "55%", color = "lightblue", size = 5, family = "Avenir") +
-  annotate("segment", x = 1.3, xend = 2.7, y = .35, yend = .51, arrow = arrow(type = "open")) +
+  annotate("text", x = 1.01, y = .35, label = "39%", color = "grey60", size = 5, family = "Avenir") +
+  annotate("text", x = 2.01, y = .73, label = "77%", color = "grey60", size = 5, family = "Avenir") +
+  annotate("text", x = 3.01, y = .51, label = "55%", color = "grey60", size = 5, family = "Avenir") +
+  annotate("segment", x = 1.3, xend = 2.7, y = .35, yend = .51, arrow = arrow(type = "open",), color = "grey60") +
   coord_cartesian(clip = "off") # doesn't crop your texts outside the plot
   
 
