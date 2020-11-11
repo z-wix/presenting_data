@@ -1,0 +1,159 @@
+---
+title: "Unusual Data Vizzes"
+author: "Zack Wixom"
+output: html_document
+---
+
+### Word of Warning
+
+These are unusual data visualizations, you should in general stick to the Power 6 charts (bar, line, scatter, table, text, and pie) but these are just super cool and fun ones.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+# Density Charts
+
+First group of data vizzes are Density Charts. 
+
+###Averages are dangerous
+
+```{r}
+
+library(tidyverse)
+
+houses <- read_csv(here::here("data", "cleaned_parcels.csv"))
+
+houses <- houses %>%
+  select(parcel_number, property_add, market_value, year_built) %>%
+  separate(property_add, c("address", "city"), sep = ",") %>%
+  mutate(city = trimws(city)) %>%
+  filter(market_value > 0,
+         year_built > 0,
+         city %in% c("WOODLAND", "STRAWBERRY", "MIDWAY", "KAMAS", "HEBER"))
+
+
+```
+
+### Histograms
+```{r}
+ggplot(houses) +
+  geom_histogram(aes(x = market_value)) + 
+  xlim(0, 1000000)
+
+```
+
+## Density
+
+```{r}
+ggplot(houses) +
+  geom_density(aes(x = market_value), fill = "grey50") + 
+  xlim(0, 1000000)
+
+```
+
+## Multiple Densities
+```{r}
+ggplot(houses) +
+  geom_density(aes(x = market_value, fill = city), alpha = 0.3) + 
+  xlim(0, 1000000)
+
+```
+
+## Multiple with Facets
+```{r}
+ggplot(houses) +
+  geom_density(aes(x = market_value), fill = "grey50") + 
+  facet_grid(~city) +
+  xlim(0, 1000000)
+
+```
+
+## Ridgelines
+```{r}
+
+# install.packages("ggridges")
+
+library(ggridges)
+
+ggplot(houses) +
+  geom_density_ridges(aes(y = city, x = market_value)) + 
+  xlim(0, 1000000)
+
+
+```
+
+## Violine
+
+```{r}
+ggplot(houses) +
+  geom_violin(aes(x = city, y = market_value)) +
+  ylim(0, 1000000) + 
+  coord_flip()
+
+
+```
+
+## Box Plot
+
+```{r}
+ggplot(houses) +
+  geom_boxplot(aes(x = city, y = market_value)) +
+  ylim(0, 1000000) + 
+  coord_flip()
+
+```
+
+
+## Jitter
+```{r}
+ggplot(houses) +
+  geom_jitter(aes(x = city, y = market_value)) +
+  ylim(0, 1000000) + 
+  coord_flip()
+
+
+```
+
+## Frankenstein
+
+```{r}
+ggplot(houses, aes(x = city, y = market_value)) +
+  geom_boxplot(alpha = .5, color = "blue") +
+  geom_violin(alpha = .5, color = "red") +
+  geom_jitter(alpha = 0.1) +
+  ylim(0, 1000000) + 
+  coord_flip()
+
+```
+
+
+## Combination with charts in Margins
+
+Source: https://www.r-graph-gallery.com/277-marginal-histogram-for-ggplot2.html
+
+## Rug Plot
+
+Wasn't able to do
+
+
+## Heat Maps
+
+```{r}
+houses %>%
+  filter(city %in% c("MIDWAY", "HEBER"),
+         year_built >= 2010,
+         year_built <= 2018) %>%
+  group_by(city, year_built) %>%
+  summarise(med_price = median(market_value)) %>%
+  mutate(med_price = med_price/1000) %>%
+  ggplot(aes(y = year_built, x = city, fill = med_price)) + 
+  geom_tile() +
+  geom_text(aes(label = scales::label_dollar(suffix = "K")(med_price)))
+
+```
+
+
+
+
