@@ -154,6 +154,144 @@ houses %>%
 
 ```
 
+## Scatter not helpful with this data
+
+```{r}
+ggplot(houses, aes(x = year_built, y = market_value)) +
+  geom_point() + 
+  ylim(0, 1000000) + 
+  xlim(1975, 2018)
+
+```
+
+## Add some Jitter to it
+
+```{r}
+ggplot(houses, aes(x = year_built, y = market_value)) +
+  geom_jitter(alpha = .5) + 
+  ylim(0, 1000000) + 
+  xlim(1975, 2018)
 
 
+```
+
+## Hexbin
+
+```{r}
+ggplot(houses, aes(x = year_built, y = market_value)) +
+  geom_hex() + 
+  ylim(0, 1000000) + 
+  xlim(1975, 2018)
+
+```
+
+## Contour Map
+
+```{r}
+ggplot(houses, aes(x = year_built, y = market_value)) +
+  geom_density2d() + 
+  ylim(0, 1000000) + 
+  xlim(1975, 2018)
+
+
+```
+
+## Density 2D
+
+```{r}
+ggplot(houses, aes(x = year_built, y = market_value)) +
+  stat_density_2d(aes(fill = ..level..), geom = "polygon") +
+  ylim(0, 1000000) + 
+  xlim(1975, 2018)
+
+
+```
+
+Customizing Options: https://www.r-graph-gallery.com/2d-density-plot-with-ggplot2.html#distr
+
+
+# Eye Candy
+
+Super cool ones. require additional packages to do
+
+## Sankey
+
+Can be useful and show flows. Flowing from one thing to another.
+
+## Chord
+
+Sankey chart with a polar axis. hard to pin point the data story
+
+## Radar or Spider Charts
+
+Common in politics and Sociology. Lots of criticism around this chart type.
+
+## Word Clouds
+
+Clients love these, not amazingly useful but cool. Ideal to keep them all horizontal. Also use familiar sizes and color/saturation for the words.
+
+## Network graphs
+
+sometimes called a hairball. Can be too crazy to be useful. Bad for presenting data. Mediocre for analysis.
+
+## Dendrogram
+
+Common with decision tree. Lots of cool R packages that make this loop nice and work with decision trees in R. 
+
+
+# Charts by Other Names
+
+## Streamgraph or steamgraph
+
+```{r}
+# First staked area
+houses %>%
+  count(city, year_built) %>%
+  filter(between(year_built, 1975, 2018)) %>%
+  ggplot(aes(x = year_built, y = n, fill = city)) + 
+  geom_area()
+
+```
+
+```{r}
+devtools::install_github("hrbrmstr/streamgraph")
+library(streamgraph)
+houses %>%
+  count(city, year_built) %>%
+  filter(between(year_built, 1975, 2018)) %>%
+  streamgraph(key="city", value="n", date="year_built")
+
+
+```
+
+
+## Lollipop
+
+Nice break in bar charts
+
+```{r}
+houses %>%
+  filter(year_built == 2017) %>%
+  count(city) %>%
+  arrange(n) %>%
+  mutate(city = fct_inorder(city)) %>%
+  ggplot() + 
+  geom_bar(aes(y = city, x = n), stat = "identity")
+
+ggplot(houses) + 
+  geom_bar(aes(y=city))
+
+```
+```{r}
+houses %>%
+  filter(year_built == 2017) %>%
+  count(city) %>%
+  arrange(n) %>%
+  mutate(city = fct_inorder(city)) %>%
+  ggplot() + 
+  geom_segment(aes(x = 0, xend = n, y = city , yend = city), color = "grey50", size = 2) +
+  geom_point(aes(x = n, y = city), color = "red", size = 8) 
+
+
+```
 
