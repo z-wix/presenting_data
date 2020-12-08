@@ -1,0 +1,12 @@
+name: week14_app
+title: week14_app
+username:
+account: zwix14
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3370811
+bundleId: 3958850
+url: https://zwix14.shinyapps.io/week14_app/
+when: 1607409825.42588
+asMultiple: FALSE
+asStatic: FALSE
