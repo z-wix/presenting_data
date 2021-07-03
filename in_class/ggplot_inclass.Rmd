@@ -102,7 +102,7 @@ Now for the Homework I need to recreate one of my vizzes using ggplot
 library(readxl)
 library(here)
 
-sales <- read_xlsx(here("data_r", "sales_rep_data.xlsx"))
+sales <- read_xlsx(here("data", "sales_rep_data.xlsx"))
 
 sales <- sales %>%
   rename(sales_rep = `Sales Rep`)
